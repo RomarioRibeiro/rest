@@ -14,8 +14,11 @@ import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import com.supercopo.domain.NegocioException;
 
 @ControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler{
@@ -41,6 +44,17 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler{
 			problema.setTitulo("Ocorreu um erro de digitação preencha os dados corretos tente novamente!.");
 			problema.setCampo(campos);
 			return handleExceptionInternal(ex, problema, headers, status, request);
+	}
+	
+	@ExceptionHandler(NegocioException.class)
+	public ResponseEntity<Object> handleNegocio(NegocioException ex, WebRequest request) {
+		HttpStatus status = HttpStatus.BAD_REQUEST; 
+		
+		Problema problema = new Problema();
+		problema.setStatus(status.value());
+		problema.setDataHora(LocalDateTime.now());
+		problema.setTitulo(ex.getMessage());
+		return handleExceptionInternal(ex, problema, new HttpHeaders(), status, request);
 	}
 	
 }
